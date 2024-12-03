@@ -6,6 +6,8 @@ const fs = require('fs')
 const { create } = require('html-pdf-chrome')
 const puppeteer = require('puppeteer')
 
+const MAX_ATTACHMENT_SIZE = 20 * 1024 * 1024 // 20MB em bytes
+
 async function ensureDirectoryExists(directoryPath) {
   try {
     await fs.promises.mkdir(directoryPath, { recursive: true })
@@ -26,33 +28,42 @@ async function captureScreenshot(url, outputPath) {
   } catch (error) { console.error('Erro ao capturar screenshot:', error) }
 }
 
-async function sendEmailWithAttachment(pdfPath, screenshotPath) {
+async function sendEmailWithAttachment(pdfPath, screenshotPath, videoPath) {
+  const attachments = [
+    {
+      filename: 'relatorio-cypress.pdf',
+      path: pdfPath,
+    },
+    {
+      filename: 'screenshot.png',
+      path: screenshotPath,
+    },
+    {
+      filename: 'video.mp4',
+      path: videoPath,
+    }
+  ]
+
+  const totalSize = await calculateTotalAttachmentSize(attachments)
+  
+  if (fs.existsSync(videoPath) && totalSize >= MAX_ATTACHMENT_SIZE) { attachments.pop() }
+  else if (!fs.existsSync(videoPath)) { console.warn(`Arquivo de vídeo não encontrado: ${videoPath}`) }
+  else { console.warn('O tamanho total dos anexos excede 20MB, vídeo não será anexado.') }
+
   const mailOptions = {
     from: process.env.EMAIL,
-    to: 'gabrielsouza_1909@hotmail.com',
-    subject: 'Relatório de Testes Cypress',
-    html: '<h3>Segue o relatório de testes do Cypress</h3>',
-
-    attachments: [
-      {
-        filename: 'relatorio-cypress.pdf',
-        path: pdfPath,
-      },
-      {
-        filename: 'video.mp4',
-        path: videoPath,
-      },
-      {
-        filename: 'screenshot.png',
-        path: screenshotPath,
-      },
-    ],
+    to: 'gabriel.costa@grvsoftware.com.br',
+    subject: '(ENTIDADE) Relatório de Testes Cypress no NXLITE',
+    html: '<h3>Segue o relatório de testes do Cypress no NXLITE - ENTIDADE</h3>',
+    attachments,
   }
 
   try {
     const info = await transporter.sendMail(mailOptions)
     console.debug('E-mail enviado com sucesso:', info.response)
-  } catch (error) { console.error('Erro ao enviar o e-mail:', error) }
+  } catch (error) {
+    console.error('Erro ao enviar o e-mail:', error)
+  }
 }
 
 async function checkCypressReportForErrors(htmlFilePath) {
@@ -94,6 +105,19 @@ async function convertHtmlToPdf(htmlFilePath, outputPdfPath) {
   }
 }
 
+async function calculateTotalAttachmentSize(attachments) {
+  let totalSize = 0
+
+  for (const attachment of attachments) {
+    try {
+      const stats = await fs.promises.stat(attachment.path)
+      totalSize += stats.size
+    } catch (error) { console.error('Erro ao calcular o tamanho do anexo:', error) }
+  }
+
+  return totalSize
+}
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -110,7 +134,7 @@ const reportPath = path.join(reportsDir, 'html', 'index.html')
 const pdfDir = path.join(reportsDir, 'pdf')
 const pdfPath = path.join(pdfDir, 'relatorio-cypress.pdf')
 const videoDir = path.join(reportsDir, 'html/videos')
-const videoPath = path.join(videoDir, 'todo.cy.js.mp4')
+const videoPath = path.join(videoDir, 'entidade.cy.js.mp4')
 const screenshotPath = path.join(pdfDir, 'relatorio-cypress.png')
 
 ensureDirectoryExists(pdfDir).then(async () => {
@@ -125,6 +149,6 @@ ensureDirectoryExists(pdfDir).then(async () => {
       return
     }
 
-    await sendEmailWithAttachment(pdfPath, screenshotPath)
+    await sendEmailWithAttachment(pdfPath, screenshotPath, videoPath)
   } else { console.info('Nenhum erro encontrado nos testes do Cypress. Nenhum e-mail enviado.') }
 })
