@@ -32,21 +32,25 @@ async function captureScreenshot(url, outputPath) {
   }
 }
 
-// Função para localizar dinamicamente o arquivo de vídeo no diretório
+// Função para localizar dinamicamente o arquivo de vídeo em múltiplos subdiretórios
 function findVideoFileDynamically(videoDir) {
   try {
-    const files = fs.readdirSync(videoDir); // Lista os arquivos no diretório
-    const videoFile = files.find(file => file.endsWith('.mp4')); // Procura o arquivo MP4
-
-    if (videoFile) {
-      console.debug(`Vídeo encontrado: ${videoFile}`);
-      return path.join(videoDir, videoFile); // Retorna o caminho completo do vídeo
-    } else {
-      console.warn('Nenhum arquivo de vídeo encontrado no diretório:', videoDir);
-      return null;
+    const directories = fs.readdirSync(videoDir, { withFileTypes: true }); // Lê todos os itens no diretório (arquivos e subpastas)
+    for (const dir of directories) {
+      if (dir.isDirectory()) { // Verifica se é um diretório
+        const subDirPath = path.join(videoDir, dir.name); // Caminho do subdiretório
+        const files = fs.readdirSync(subDirPath); // Lista os arquivos no subdiretório
+        const videoFile = files.find(file => file.endsWith('.mp4')); // Procura por arquivo MP4 no subdiretório
+        if (videoFile) {
+          console.debug(`Vídeo encontrado: ${videoFile} em ${subDirPath}`);
+          return path.join(subDirPath, videoFile); // Retorna o caminho completo do vídeo
+        }
+      }
     }
+    console.warn('Nenhum arquivo de vídeo encontrado nos subdiretórios:', videoDir);
+    return null;
   } catch (error) {
-    console.error('Erro ao procurar o arquivo de vídeo:', error);
+    console.error('Erro ao procurar o arquivo de vídeo nos subdiretórios:', error);
     return null;
   }
 }
@@ -163,6 +167,7 @@ const pdfPath = path.join(pdfDir, 'relatorio-cypress.pdf');
 const videoDir = path.join('cypress/videos');
 const screenshotPath = path.join(pdfDir, 'relatorio-cypress.png');
 
+// Atualização no código principal para lidar com múltiplos diretórios
 ensureDirectoryExists(pdfDir).then(async () => {
   const hasErrors = await checkCypressReportForErrors(reportPath);
 
@@ -170,6 +175,7 @@ ensureDirectoryExists(pdfDir).then(async () => {
     await convertHtmlToPdf(reportPath, pdfPath);
     await captureScreenshot(reportPath, screenshotPath);
 
+    // Chama a função para localizar vídeos em múltiplos diretórios
     const videoPath = findVideoFileDynamically(videoDir);
 
     if (!fs.existsSync(pdfPath)) {
