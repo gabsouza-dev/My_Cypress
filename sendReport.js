@@ -160,7 +160,7 @@ const reportsDir = path.resolve(__dirname, 'cypress/reports');
 const reportPath = path.join(reportsDir, 'html', 'index.html');
 const pdfDir = path.join(reportsDir, 'pdf');
 const pdfPath = path.join(pdfDir, 'relatorio-cypress.pdf');
-const videoDir = path.join(reportsDir, 'html/videos');
+const videoDir = path.join('cypress/videos');
 const screenshotPath = path.join(pdfDir, 'relatorio-cypress.png');
 
 ensureDirectoryExists(pdfDir).then(async () => {
