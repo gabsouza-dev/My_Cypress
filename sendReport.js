@@ -53,8 +53,8 @@ async function sendEmailWithAttachment(pdfPath, screenshotPath, videoPath) {
   const mailOptions = {
     from: process.env.EMAIL,
     to: 'dev.gabrielsouza@hotmail.com',
-    subject: '(ENTIDADE) Relatório de Testes Cypress no NXLITE',
-    html: '<h3>Segue o relatório de testes do Cypress no NXLITE - ENTIDADE</h3>',
+    subject: 'Relatório de Testes Cypress no NXLITE',
+    html: '<h3>Segue o relatório de testes do Cypress</h3>',
     attachments,
   }
 
@@ -134,7 +134,7 @@ const reportPath = path.join(reportsDir, 'html', 'index.html')
 const pdfDir = path.join(reportsDir, 'pdf')
 const pdfPath = path.join(pdfDir, 'relatorio-cypress.pdf')
 const videoDir = path.join(reportsDir, 'html/videos')
-const videoPath = path.join(videoDir, 'entidade.cy.js.mp4')
+const videoPath = path.join(videoDir, '*.cy.js.mp4')
 const screenshotPath = path.join(pdfDir, 'relatorio-cypress.png')
 
 ensureDirectoryExists(pdfDir).then(async () => {
