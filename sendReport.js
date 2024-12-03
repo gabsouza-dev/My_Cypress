@@ -52,7 +52,7 @@ async function sendEmailWithAttachment(pdfPath, screenshotPath, videoPath) {
 
   const mailOptions = {
     from: process.env.EMAIL,
-    to: 'gabriel.costa@grvsoftware.com.br',
+    to: 'dev.gabrielsouza@hotmail.com',
     subject: '(ENTIDADE) Relatório de Testes Cypress no NXLITE',
     html: '<h3>Segue o relatório de testes do Cypress no NXLITE - ENTIDADE</h3>',
     attachments,
