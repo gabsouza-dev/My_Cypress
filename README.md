@@ -27,12 +27,12 @@ Certifique-se de ter instalado:
 
 1. Abra o terminal e execute o seguinte comando para clonar o repositório:
    ```bash
-   git clone https://github.com/gabsouza-dev/cypress-with-email.git
+   git clone https://github.com/gabsouza-dev/My_Cypress.git
    ```
 
 2. Entre na pasta do projeto:
    ```bash
-   cd cypress-with-email
+   cd My_Cypress
    ```
 
 ---
