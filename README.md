@@ -1,4 +1,4 @@
-# Cypress With Email
+# Cypress + Github-Actions + SMTP 
 
 Este repositório contém a configuração de testes automatizados com Cypress, incluindo o envio de relatórios de teste por e-mail com anexos, utilizando Node.js e bibliotecas específicas.
 
